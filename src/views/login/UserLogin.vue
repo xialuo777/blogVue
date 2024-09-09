@@ -75,12 +75,12 @@ export default {
               password: _this.ruleForm.password,
             },
           }).then((res) => {        //当收到后端响应时执行括号内代码，其中res为相应信息
-            if (res.data.code === "20000") { //当相应的编码为20000时，说明登陆成功
+            if (res.data.code === 20000) { //当相应的编码为20000时，说明登陆成功
               //将相应的accessToken和refreshToken存储到sessionStorage中
               sessionStorage.setItem("token", JSON.stringify(res.data.data));
               console.log(sessionStorage.getItem("token"))
               //跳转页面到首页
-              this.$router.push('home');
+              this.$router.push('/home');
               //显示后端相应的成功信息
               this.$message({
                 message: res.data.msg,

@@ -94,7 +94,6 @@ export default {
         ],
         nickName: [
           {required: true, message: '请输入昵称', trigger: 'blur'},
-          {message: '长度在 3 到 5 个字符', trigger: 'blur'}
         ],
         password: [
           {required: true, validator: validatePass, trigger: 'blur'},
@@ -118,7 +117,7 @@ export default {
         ]
       },
       count: 0,
-      TIME_COUNT: 60,
+      TIME_COUNT: 120,
       timer: null,
     }
   },
@@ -184,7 +183,7 @@ export default {
           email: _this.ruleForm.email
         },
       }).then((res) => {
-        if (res.data.code === "20000") {
+        if (res.data.code === 20000) {
           this.$message({
             message: res.data.msg,
             type: "success",
@@ -193,12 +192,12 @@ export default {
           this.timer = setInterval(() => {
             if (this.count > 0) {
               this.count--; // 倒计时递减
-              this.$refs.getCode.textContent = this.count + '秒后重新获取'; // 更新按钮文本
+              this.$refs.getCode.$el.innerText = this.count + '秒后重新获取'; // 更新按钮文本
             } else {
               clearInterval(this.timer); // 倒计时结束，清除定时器
               this.timer = null;
               this.count = 0; // 重置倒计时秒数
-              this.$refs.getCode.textContent = '获取验证码'; // 重置按钮文本
+              this.$refs.getCode.$el.innerText = '获取验证码'; // 重置按钮文本
               this.$refs.getCode.disabled = false; // 重新启用按钮
             }
           }, 1000);

@@ -4,7 +4,7 @@ import UserLogin from '../views/login/UserLogin';
 import Register from "../views/register/UserRegister.vue";
 import Home from '../views/home/UserHome.vue';
 import Index from '../views/index/UserIndex.vue'
-// import { Message } from "element-ui";
+import { Message } from "element-ui";
 
 const router =  new VueRouter({
     mode: 'history',
@@ -12,6 +12,9 @@ const router =  new VueRouter({
         {
             path: '/',         //路径
             redirect: '/login'    //跳转到组件
+        },
+        {
+            path:'/'
         },
         {
             path: '/login',         //路径
@@ -34,7 +37,7 @@ const router =  new VueRouter({
     ]
 })
 
-/*router.beforeEach((to, from, next) => {
+router.beforeEach((to, from, next) => {
     let isAuthenticated = !!sessionStorage.getItem('token')
     // 如果路由要跳转到除了登录和注册的界面的话就判断是否已经登录，如果没有登录就强制跳到登录界面
     if (to.path !== '/login' && to.path !== '/register' && !isAuthenticated) {
@@ -44,5 +47,5 @@ const router =  new VueRouter({
             type: "warning",
         });
     } else next()
-})*/
+})
 export default router;
