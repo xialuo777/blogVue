@@ -4,6 +4,7 @@
   <div>
     <!-- 搜索区域 -->
     <div class="filter-container sousuo">
+      <el-button type="danger" class="back-button-right-top" @click="back">返回</el-button>
       <el-input v-model="listQuery.nickName" placeholder="根据昵称查询" style="width: 200px;"/>
       <el-button type="primary" icon="el-icon-search" @click="searchData">
         查询
@@ -48,6 +49,7 @@
       </el-pagination>
     </div>
   </div>
+
 </template>
 
 <script>
@@ -78,6 +80,10 @@ export default {
     };
   },
   methods: {
+    back(){
+      // 跳转页面到个人主页
+      this.$router.go(-1);
+    },
     // 改变分页的每页的页数
     handleSizeChange(size) {
       this.pagination.pageSize = size;
@@ -97,27 +103,6 @@ export default {
       this.getUserList();
     },
     // 获取用户列表
-/*    getALLUserList() {
-      this.listLoading = true;
-      axios.get("/api/users/getUsers", {
-        params: {
-          pageNo: this.listQuery.pageNum,
-          pageSize: this.listQuery.pageSize
-        }
-      }).then(response => {
-        this.listLoading = false;
-        if (response.data.code === 20000) {
-          this.userList = response.data.data.list; // 更新数据列表
-          console.log(response.data)
-          this.pagination.totalCount = response.data.data.totalCount; // 更新总数据量
-        } else {
-          this.$message.error(response.data.msg);
-        }
-      }).catch(error => {
-        this.listLoading = false;
-        console.error('请求错误', error);
-      });
-    },*/
     getUserList() {
       this.listLoading = true;
       const url = this.listQuery.nickName ? `/api/users/${this.listQuery.nickName}` : "/api/users/getUsers";
@@ -127,9 +112,8 @@ export default {
 
       // 构建请求头
       const headers = {
-        'Authorization': accessToken ? `Bearer ${accessToken}` : ''
+        'Authorization': accessToken ? `${accessToken}` : ''
       };
-
 
       axios.get(url, {
         params: {
@@ -153,14 +137,30 @@ export default {
   },
   created() {
   },
-  logout(){
-    // 移除本地用户登录信息
-    sessionStorage.removeItem('token');
-    // 跳转页面到登录页
-    this.$router.push('/login');
-  },
+
+
   mounted() {
   },
 };
 
 </script>
+
+
+<style scoped>
+/* 其他样式 ... */
+
+/* 新增的返回按钮样式 */
+.back-button-right-top {
+  position: absolute;
+  top: 10px; /* 根据需要调整 */
+  right: 10px; /* 根据需要调整 */
+  z-index: 1000; /* 确保按钮在最上层 */
+}
+
+/* 调整 .filter-container 的 padding 以避免覆盖 */
+.filter-container {
+  padding-top: 50px; /* 根据按钮的高度调整 */
+}
+
+/* 其他样式 ... */
+</style>

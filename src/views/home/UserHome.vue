@@ -1,7 +1,7 @@
 <template>
   <div class="user-home">
     <div class="header">
-      <h2>欢迎, {{ user.uname }}！</h2>
+      <h2>欢迎来到您的主页, {{ user.uname }}！</h2>
       <div class="logout-button">
         <el-button type="primary" @click="editUserInfo">编辑信息</el-button>
         <el-button type="danger" @click="logout">退出登录</el-button>
@@ -18,9 +18,9 @@
       <h3>我的文章</h3>
       <el-table :data="userArticles" style="width: 100%" stripe>
         <el-table-column type="index" label="序号" width="50"></el-table-column>
-        <el-table-column prop="title" label="标题"></el-table-column>
-        <el-table-column prop="publishDate" label="发布时间"></el-table-column>
-        <el-table-column prop="updateDate" label="更新时间"></el-table-column>
+        <el-table-column prop="blogTitle" label="标题"></el-table-column>
+        <el-table-column prop="creatTime" label="发布时间"></el-table-column>
+        <el-table-column prop="updateTime" label="更新时间"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button @click="viewArticle(scope.row.id)" type="text" size="small">查看</el-button>
@@ -29,10 +29,21 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="pagination">
+        <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="pagination.currentPage"
+            :page-sizes="[5, 10, 20, 50]"
+            :page-size="pagination.pageSize"
+            :total="pagination.totalCount"
+            layout="total, sizes, prev, pager, next, jumper"
+        />
+      </div>
     </div>
     <div class="contact-info">
       <el-row :gutter="20" class="contact-row">
-      <h3>联系方式</h3>
+        <h3>联系方式</h3>
         <el-col :span="12">
           <p>邮箱: {{ user.email }}</p>
         </el-col>
@@ -55,12 +66,28 @@ export default {
         bio: "",
         email: "",
         phone: "",
-        articles: [], // 用户文章列表
+        userArticles: [], // 用户文章列表
       },
-      userArticles: [], // 存储用户文章数据
+      // userArticles: [],
+      pagination: {
+        currentPage: 1, //初始页
+        pageSize: 10, //每页的数据
+        totalCount: 0 //总数据
+      },
     };
   },
   methods: {
+    // 改变分页的每页的页数
+    handleSizeChange(newSize) {
+      this.pagination.pageSize = newSize;
+      this.pagination.currentPage = 1; // 重置为第一页
+      this.fetchUserArticles();
+    },
+    // 改变分页的当前页面
+    handleCurrentChange(newPage) {
+      this.pagination.currentPage = newPage;
+      this.fetchUserArticles();
+    },
     logout() {
       sessionStorage.removeItem('token');
       this.$router.push('/login');
@@ -78,11 +105,32 @@ export default {
       console.log('删除文章', id);
     },
     fetchUserArticles() {
-      // 这里使用静态数据模拟
-      this.userArticles = [
-        { id: 1, title: 'java 基础', publishDate: '2024-06-01', updateDate: '2024-06-02', summary: 'Vue.js 是一个渐进式JavaScript框架...' },
-        { id: 2, title: 'Vue 学习', publishDate: '2024-07-15', updateDate: '2024-07-16', summary: 'Vue Router 是 Vue.js 的官方路由管理器...' },
-      ];
+      // 从 sessionStorage 中获取 accessToken
+      const token = sessionStorage.getItem('token');
+      const accessToken = token ? JSON.parse(token).accessToken : null;
+
+      // 构建请求头
+      const headers = {
+        'Authorization': accessToken ? `${accessToken}` : ''
+      };
+      axios.get('api/blogs/list', {
+        params: {
+          pageNo: this.pagination.currentPage,
+          pageSize: this.pagination.pageSize
+        },
+        headers: headers
+      }).then(response => {
+            const data = response.data.data;
+            console.log(data);
+            if (response.data.code == 20000) {
+              this.userArticles = data.list;
+              this.pagination.totalCount = data.totalCount;
+            } else {
+              this.$message.error(response.data.msg);
+            }
+          }).catch(error => {
+        console.error('请求错误', error);
+      });
     },
     fetchUserInfo() {
       this.makeRequest('/api/users/home', 'get')
@@ -114,8 +162,8 @@ export default {
         const accessToken = JSON.parse(token).accessToken;
         console.log(accessToken);
         // 将accessToken添加到请求头
-        const headers = { ...config.headers, Authorization: `Bearer ${accessToken}` };
-        return axios({ url, method, data, headers });
+        const headers = {...config.headers, Authorization: `${accessToken}`};
+        return axios({url, method, data, headers});
       } else {
         // 如果没有accessToken，可以处理未登录的逻辑
         console.error('未找到accessToken');
@@ -124,6 +172,7 @@ export default {
   },
   mounted() {
     this.fetchUserInfo();
+    this.fetchUserArticles();
   },
 };
 </script>
@@ -136,32 +185,39 @@ export default {
   flex-direction: column;
   justify-content: space-between;
 }
+
 .header {
   width: 100%;
 }
+
 .logout-button {
   display: flex;
   justify-content: flex-end; /* 将按钮组放在右侧 */
   gap: 10px; /* 添加间隔 */
   margin-top: 10px; /* 添加一些上边距 */
 }
+
 .user-info, .article-list {
   width: 100%;
   margin-bottom: 20px;
   text-align: center;
 }
+
 .contact-info {
   width: 100%;
   text-align: center;
   font-size: 0.9rem; /* 缩小字体大小 */
   margin-top: auto; /* 将联系方式推到页面底部 */
 }
+
 .contact-info p {
   margin: 5px 0;
 }
+
 .el-row {
   justify-content: space-around;
 }
+
 .contact-row {
   justify-content: space-between; /* 确保联系方式并排排列 */
   align-items: center; /* 垂直居中 */
