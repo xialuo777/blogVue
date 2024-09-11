@@ -4,7 +4,11 @@ import UserLogin from '../views/login/UserLogin';
 import Register from "../views/register/UserRegister.vue";
 import Home from '../views/home/UserHome.vue';
 import Index from '../views/index/UserIndex.vue'
+import BlogDetail from "@/views/blog/BlogDetail.vue";
 import { Message } from "element-ui";
+import EditUserInfo from "@/views/user/EditUserInfo.vue";
+import EditArticle from "@/views/blog/EditArticle.vue";
+
 
 const router =  new VueRouter({
     mode: 'history',
@@ -32,7 +36,23 @@ const router =  new VueRouter({
         {
             path:'/index',
             component: Index
-        }
+        },
+        {
+            path: '/blogs/:id',  // 动态路由，`:id` 是一个动态段
+            name: 'BlogDetail',
+            component: BlogDetail
+
+        },
+        {
+            path: '/edit-user-info',
+            name: 'EditUserInfo',
+            component: EditUserInfo,
+        },
+        {
+            path: '/edit-article/:id', // 动态路由，用于编辑博客
+            name: 'EditArticle',
+            component: EditArticle,
+        },
 
     ]
 })

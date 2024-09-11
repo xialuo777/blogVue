@@ -78,7 +78,6 @@ export default {
             if (res.data.code === 20000) { //当相应的编码为20000时，说明登陆成功
               //将相应的accessToken和refreshToken存储到sessionStorage中
               sessionStorage.setItem("token", JSON.stringify(res.data.data));
-              console.log(sessionStorage.getItem("token"))
               //跳转页面到首页
               this.$router.push('/home');
               //显示后端相应的成功信息
@@ -95,7 +94,6 @@ export default {
             }
             //后端响应信息后，关闭登录按钮加载动画
             _this.loading = false;
-            console.log(res);
           });
         } else {  //如果邮箱和密码有一个没填，则提示，并不用向后端发送请求
           console.log("error submit!!");

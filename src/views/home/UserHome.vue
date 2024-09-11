@@ -16,16 +16,18 @@
     </div>
     <div class="article-list">
       <h3>我的文章</h3>
+      <el-button type="primary" icon="el-icon-plus" title="添加文章" @click="addArticle" size="mini" class = "add-article-button"></el-button>
       <el-table :data="userArticles" style="width: 100%" stripe>
         <el-table-column type="index" label="序号" width="50"></el-table-column>
+        <el-table-column prop="categoryName" label="分类" width="100"></el-table-column>
         <el-table-column prop="blogTitle" label="标题"></el-table-column>
         <el-table-column prop="creatTime" label="发布时间"></el-table-column>
         <el-table-column prop="updateTime" label="更新时间"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button @click="viewArticle(scope.row.id)" type="text" size="small">查看</el-button>
-            <el-button @click="editArticle(scope.row.id)" type="text" size="small">编辑</el-button>
-            <el-button @click="deleteArticle(scope.row.id)" type="text" size="small">删除</el-button>
+            <el-button @click="viewArticle(scope.row.blogId)" type="text" size="small">查看</el-button>
+            <el-button @click="editArticle(scope.row.blogId)" type="text" size="small">编辑</el-button>
+            <el-button @click="deleteArticle(scope.row.blogId)" type="text" size="small">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -57,6 +59,7 @@
 
 <script>
 import axios from 'axios';
+import { MessageBox } from 'element-ui';
 
 export default {
   data() {
@@ -66,14 +69,15 @@ export default {
         bio: "",
         email: "",
         phone: "",
-        userArticles: [], // 用户文章列表
       },
-      // userArticles: [],
+      userArticles: [],
       pagination: {
         currentPage: 1, //初始页
         pageSize: 10, //每页的数据
         totalCount: 0 //总数据
       },
+      selectedCategory: '', // 当前选中的分类
+      categories: [] // 所有分类列表
     };
   },
   methods: {
@@ -95,14 +99,51 @@ export default {
     editUserInfo() {
       this.$router.push('/edit-user-info');
     },
-    viewArticle(id) {
-      this.$router.push(`/article/${id}`);
+    viewArticle(blogId) {
+      if (!blogId) {
+        console.error('博客ID未定义');
+        this.$message.error('博客ID未定义');
+        return;
+      }
+      this.$router.push({ name: 'BlogDetail', params: { id: blogId } });
     },
-    editArticle(id) {
-      this.$router.push(`/edit-article/${id}`);
+    editArticle(blogId) {
+      this.$router.push(`/edit-article/${blogId}`);
     },
-    deleteArticle(id) {
-      console.log('删除文章', id);
+    deleteArticle(blogId) {
+      // 确认对话框
+      MessageBox.confirm('确定要删除这篇文章吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 从 sessionStorage 中获取 accessToken
+        const token = sessionStorage.getItem('token');
+        const accessToken = token ? JSON.parse(token).accessToken : null;
+
+        // 构建请求头
+        const headers = {
+          'Authorization': accessToken ? `${accessToken}` : ''
+        };
+        // 发送 DELETE 请求
+        axios.delete(`/api/blogs/delete/${blogId}`, { headers })
+            .then(response => {
+              if (response.data.code === 20000) {
+                this.$message.success(response.data.msg);
+                // 成功后重新获取文章列表
+                this.fetchUserArticles();
+              } else {
+                this.$message.error(response.data.msg);
+              }
+            })
+            .catch(error => {
+              console.error('删除文章出错', error);
+              this.$message.error('删除失败，请重试');
+            });
+      }).catch(() => {
+        // 取消删除
+        this.$message.info('已取消删除');
+      });
     },
     fetchUserArticles() {
       // 从 sessionStorage 中获取 accessToken
@@ -120,15 +161,15 @@ export default {
         },
         headers: headers
       }).then(response => {
-            const data = response.data.data;
-            console.log(data);
-            if (response.data.code == 20000) {
-              this.userArticles = data.list;
-              this.pagination.totalCount = data.totalCount;
-            } else {
-              this.$message.error(response.data.msg);
-            }
-          }).catch(error => {
+        const data = response.data.data;
+        console.log(data);
+        if (response.data.code == 20000) {
+          this.userArticles = data.list;
+          this.pagination.totalCount = data.totalCount;
+        } else {
+          this.$message.error(response.data.msg);
+        }
+      }).catch(error => {
         console.error('请求错误', error);
       });
     },
@@ -137,7 +178,6 @@ export default {
           .then(response => {
             if (response.data.code === 20000) {
               const userData = response.data.data;
-              console.log(userData);
               this.user = {
                 uname: userData.nickName, // 使用nickName作为用户名显示
                 bio: '暂无简介', // 假设后端没有提供个人简介，可以设置默认值
@@ -148,10 +188,9 @@ export default {
             } else {
               console.error('获取用户信息失败');
             }
-          })
-          .catch(error => {
-            console.error('请求错误', error);
-          });
+          }).catch(error => {
+        console.error('请求错误', error);
+      });
     },
     // 通用请求函数
     makeRequest(url, method, data = null, config = {}) {
@@ -170,9 +209,13 @@ export default {
       }
     },
   },
+  addArticle() {
+    // 跳转到添加文章的页面或弹出添加文章的对话框
+    this.$router.push('/add-article');
+  },
   mounted() {
     this.fetchUserInfo();
-    this.fetchUserArticles();
+    // this.fetchUserArticles();
   },
 };
 </script>
@@ -214,12 +257,12 @@ export default {
   margin: 5px 0;
 }
 
-.el-row {
-  justify-content: space-around;
-}
-
 .contact-row {
   justify-content: space-between; /* 确保联系方式并排排列 */
   align-items: center; /* 垂直居中 */
 }
+.add-article-button {
+  margin-left: auto; /* 将按钮推到最右边 */
+}
+
 </style>

@@ -114,11 +114,11 @@ export default {
       const headers = {
         'Authorization': accessToken ? `${accessToken}` : ''
       };
-
+      let _this = this;
       axios.get(url, {
         params: {
-          pageNo: this.listQuery.pageNum,
-          pageSize: this.listQuery.pageSize
+          pageNo: _this.listQuery.pageNum,
+          pageSize: _this.listQuery.pageSize
         },
         headers: headers // 将请求头添加到请求中
       }).then(response => {
