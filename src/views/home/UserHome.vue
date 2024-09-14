@@ -81,6 +81,10 @@ export default {
     };
   },
   methods: {
+    addArticle() {
+      // 跳转到添加文章的页面或弹出添加文章的对话框
+      this.$router.push('/add-article');
+    },
     // 改变分页的每页的页数
     handleSizeChange(newSize) {
       this.pagination.pageSize = newSize;
@@ -209,10 +213,7 @@ export default {
       }
     },
   },
-  addArticle() {
-    // 跳转到添加文章的页面或弹出添加文章的对话框
-    this.$router.push('/add-article');
-  },
+
   mounted() {
     this.fetchUserInfo();
     // this.fetchUserArticles();

@@ -7,6 +7,7 @@ import Index from '../views/index/UserIndex.vue'
 import BlogDetail from "@/views/blog/BlogDetail.vue";
 import { Message } from "element-ui";
 import EditUserInfo from "@/views/user/EditUserInfo.vue";
+import AddArticle from "@/views/blog/AddArticle.vue";
 import EditArticle from "@/views/blog/EditArticle.vue";
 
 
@@ -16,9 +17,6 @@ const router =  new VueRouter({
         {
             path: '/',         //路径
             redirect: '/login'    //跳转到组件
-        },
-        {
-            path:'/'
         },
         {
             path: '/login',         //路径
@@ -52,6 +50,11 @@ const router =  new VueRouter({
             path: '/edit-article/:id', // 动态路由，用于编辑博客
             name: 'EditArticle',
             component: EditArticle,
+        },
+        {
+            path: '/add-article',
+            name: 'AddArticle',
+            component: AddArticle,
         },
 
     ]

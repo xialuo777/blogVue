@@ -1,5 +1,6 @@
 <template>
   <div class="edit-article">
+    <el-button type="danger" class="back-button-right-top" @click="back">返回</el-button>
     <el-form ref="articleForm" :model="article" label-width="120px">
       <el-form-item label="博客标题">
         <el-input v-model="article.blogTitle"></el-input>
@@ -21,7 +22,7 @@
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="article.blogStatus">
-          <el-option label="草稿" :value="3"></el-option>
+          <el-option label="草稿" :value="0"></el-option>
           <el-option label="公开" :value="1"></el-option>
           <el-option label="私密" :value="2"></el-option>
         </el-select>
@@ -47,7 +48,7 @@ export default {
         blogTags: '',
         thumbnail: '',
         isTop: 0,
-        blogStatus: 1, // 默认为公开状态
+        blogStatus: 0, // 默认为草稿状态
       },
       isTopValue: false, // 用于el-switch的布尔值
     };
@@ -61,6 +62,9 @@ export default {
     },
   },
   methods: {
+    back() {
+      this.$router.go(-1)
+    },
     fetchArticleInfo() {
 
       // 从 sessionStorage 中获取 accessToken
@@ -72,7 +76,7 @@ export default {
         'Authorization': accessToken ? `${accessToken}` : ''
       };
       const articleId = this.$route.params.id;
-      axios.get(`/api/blogs/${articleId}`, { headers })
+      axios.get(`/api/blogs/detail/${articleId}`, { headers })
           .then(response => {
             if (response.data.code === 20000) {
               const data = response.data.data;
@@ -128,5 +132,11 @@ export default {
 
 .el-form-item {
   margin-bottom: 20px;
+}
+.back-button-right-top {
+  position: absolute;
+  top: 10px; /* 根据需要调整 */
+  right: 10px; /* 根据需要调整 */
+  z-index: 1000; /* 确保按钮在最上层 */
 }
 </style>

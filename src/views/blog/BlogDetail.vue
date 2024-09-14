@@ -1,5 +1,6 @@
 <template>
   <div className="blog-detail">
+    <el-button type="danger" class="back-button-right-top" @click="back">返回</el-button>
     <h1>{{ blogData.blogTitle }}</h1>
     <img :src="blogData.thumbnail" alt="Thumbnail" v-if="blogData.thumbnail">
     <p><strong>ID:</strong> {{ blogData.blogId }}</p>
@@ -43,6 +44,9 @@ export default {
     this.fetchBlogDetails(this.$route.params.id);
   },
   methods: {
+    back() {
+      this.$router.go(-1);
+    },
     fetchBlogDetails(id) {
 
       // 从 sessionStorage 中获取 accessToken
@@ -53,7 +57,7 @@ export default {
       const headers = {
         'Authorization': accessToken ? `${accessToken}` : ''
       };
-      axios.get(`/api/blogs/${id}`,
+      axios.get(`/api/blogs/detail/${id}`,
           {headers: headers})
           .then(response => {
             console.log(response.data);
@@ -97,5 +101,11 @@ export default {
 .blog-detail img {
   max-width: 100%;
   height: auto;
+}
+.back-button-right-top {
+  position: absolute;
+  top: 10px; /* 根据需要调整 */
+  right: 10px; /* 根据需要调整 */
+  z-index: 1000; /* 确保按钮在最上层 */
 }
 </style>

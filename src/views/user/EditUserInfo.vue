@@ -1,5 +1,6 @@
 <template>
   <div class="edit-user-info">
+    <el-button type="danger" class="back-button-right-top" @click="back">返回</el-button>
     <el-form ref="userForm" :model="user" label-width="100px">
       <el-form-item label="昵称">
         <el-input v-model="user.nickName"></el-input>
@@ -46,6 +47,10 @@ export default {
     this.fetchUserInfo();
   },
   methods: {
+    back(){
+      // 跳转页面到个人主页
+      this.$router.go(-1);
+    },
     fetchUserInfo() {
       // 从 sessionStorage 中获取 accessToken
       const token = sessionStorage.getItem('token');
@@ -99,6 +104,13 @@ export default {
 .edit-user-info {
   max-width: 500px;
   margin: 20px auto;
+}
+/* 新增的返回按钮样式 */
+.back-button-right-top {
+  position: absolute;
+  top: 10px; /* 根据需要调整 */
+  right: 10px; /* 根据需要调整 */
+  z-index: 1000; /* 确保按钮在最上层 */
 }
 
 .el-form-item {
